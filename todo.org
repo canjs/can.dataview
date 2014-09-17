@@ -1,0 +1,14 @@
+* archive [0/0]
+* backlog [0/1]
+** TODO Test using Travis-CI                                             :qa:
+* active [1/8]
+** DONE Improve filtered list API                                       :api:
+   CLOSED: [2014-09-16 Tue 17:32]
+** TODO Allow users to specify what List class to use for toViewList    :api:
+   Probably add a static property to can.List
+** TODO Release filtered lists as a plugin                              :api:
+** TODO Add support for splice events                                   :api:
+** TODO Add support for replace events                                  :api:
+** TODO Speed up change observation on filtered list                   :perf:
+** TODO Write docs                                                      :dox:
+** TODO Write tests                                                      :qa:
