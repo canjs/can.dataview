@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/zkat/can.dataview.git"
+    "url": "git://github.com/bitovi/can.dataview.git"
   },
   "keywords": [
     "datastructures",
@@ -22,9 +22,9 @@
   "author": "Kat Marchán <kzm@sykosomatic.org>",
   "license": "CC0",
   "bugs": {
-    "url": "https://github.com/zkat/can.dataview/issues"
+    "url": "https://github.com/bitovi/can.dataview/issues"
   },
-  "homepage": "https://github.com/zkat/can.dataview",
+  "homepage": "https://github.com/bitovi/can.dataview",
   "dependencies": {
     "baconjs": "^0.7.22",
     "can.bacon": "^0.1.3",
