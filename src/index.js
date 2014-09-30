@@ -2,7 +2,7 @@ module can from "can";
 module Bacon from "bacon";
 import "can.bacon";
 
-can.makeViewStreamFromStream = function(stream, map) {
+can.makeDataViewStreamFromStream = function(stream, map) {
   var mapping = [];
   var removeStream = stream.filter(function(ev) { return ev.how === "remove"; }).map(function(event) {
     var mappedIndex = findMappedIndex(mapping, event.index),
@@ -48,21 +48,15 @@ can.makeViewStreamFromStream = function(stream, map) {
   return removeStream.merge(changeStream);
 };
 
-can.List.prototype.toViewStream = function(mapper) {
-  var bus = new Bacon.Bus(),
-      stream = can.makeViewStreamFromStream(
-        this.bind("add").merge(this.bind("remove")).merge(this.bind("set")).merge(bus),
-        mapper);
-  bus.push({
-    how: "add",
-    index: 0,
-    value: this.attr()
-  });
-  return stream;
+can.List.prototype.toDataViewStream = function(mapper) {
+  return can.makeDataViewStreamFromStream(
+    this.bind("add")
+      .merge(this.bind("remove"))
+      .merge(this.bind("set")));
 };
 
-can.List.prototype.toViewList = function(mapper) {
-  return this.toViewStream(mapper).toList();
+can.List.prototype.toDataViewList = function(mapper) {
+  return this.toDataViewStream(mapper).toList(new can.List(this));
 };
 
 //
