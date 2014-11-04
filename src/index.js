@@ -18,6 +18,7 @@ can.makeDataViewStreamFromStream = function(stream, map) {
   var changeStream = stream.filter(function(ev) {
     return ~["add","set"].indexOf(ev.how);
   }).withHandler(function(event) {
+    if (event.isEnd()) {return;}
     event = event.value();
     var handler = this;
     event.value.forEach(function(val, i) {
@@ -31,9 +32,8 @@ can.makeDataViewStreamFromStream = function(stream, map) {
           newItems = [map(val)];
         }
         handler.push(new Bacon.Next({
-          how: "splice",
           howMany: lastCount,
-          index: findMappedIndex(mapping, mapping.indexOf(compute)),
+          computeIndex: mapping.indexOf(compute),
           value: newItems
         }));
         lastCount = newItems.length;
@@ -42,8 +42,15 @@ can.makeDataViewStreamFromStream = function(stream, map) {
       mapping
         .splice(event.index + i, event.how === "add" ? 0 : 1, compute)
         .forEach(function(c) { c.unbind("change"); });
-      compute.bind("change", function(){});
+      compute.bind("change", function() {});
     });
+  }).map(function(ev) {
+    return {
+      how: "splice",
+      howMany: ev.howMany,
+      value: ev.value,
+      index: findMappedIndex(mapping, ev.computeIndex)
+    };
   });
   return removeStream.merge(changeStream);
 };
@@ -52,12 +59,30 @@ can.List.prototype.toDataViewStream = function(mapper) {
   return can.makeDataViewStreamFromStream(
     this.bind("add")
       .merge(this.bind("remove"))
-      .merge(this.bind("set")));
+      .merge(this.bind("set")),
+    mapper);
 };
 
 can.List.prototype.toDataViewList = function(mapper) {
-  return this.toDataViewStream(mapper).toList(new can.List(this));
+  return this.toDataViewStream(mapper).toList();
 };
+
+/*
+can.List.prototype.dataViewSync = function(list, mapper) {
+  var results = [];
+  list.forEach(function(val) {
+    var newItems;
+    if (mapper.length > 1) {
+      newItems = [];
+      mapper(val, function(val) { results.push(val); });
+    } else {
+      newItems = [mapper(val)];
+    }
+  });
+  this.replace(results);
+  return this;
+};
+*/
 
 //
 // Util

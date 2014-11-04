@@ -59,7 +59,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var can = __webpack_require__(1);
 	var Bacon = __webpack_require__(2);
 	__webpack_require__(3);
-	can.makeViewStreamFromStream = function(stream, map) {
+	can.makeDataViewStreamFromStream = function(stream, map) {
 	  var mapping = [];
 	  var removeStream = stream.filter(function(ev) {
 	    return ev.how === "remove";
@@ -79,6 +79,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var changeStream = stream.filter(function(ev) {
 	    return ~["add", "set"].indexOf(ev.how);
 	  }).withHandler(function(event) {
+	    if (event.isEnd()) {
+	      return;
+	    }
 	    event = event.value();
 	    var handler = this;
 	    event.value.forEach(function(val, i) {
@@ -94,9 +97,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	          newItems = [map(val)];
 	        }
 	        handler.push(new Bacon.Next({
-	          how: "splice",
 	          howMany: lastCount,
-	          index: findMappedIndex(mapping, mapping.indexOf(compute)),
+	          computeIndex: mapping.indexOf(compute),
 	          value: newItems
 	        }));
 	        lastCount = newItems.length;
@@ -107,21 +109,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	      });
 	      compute.bind("change", function() {});
 	    });
+	  }).map(function(ev) {
+	    return {
+	      how: "splice",
+	      howMany: ev.howMany,
+	      value: ev.value,
+	      index: findMappedIndex(mapping, ev.computeIndex)
+	    };
 	  });
 	  return removeStream.merge(changeStream);
 	};
-	can.List.prototype.toViewStream = function(mapper) {
-	  var bus = new Bacon.Bus(),
-	      stream = can.makeViewStreamFromStream(this.bind("add").merge(this.bind("remove")).merge(this.bind("set")).merge(bus), mapper);
-	  bus.push({
-	    how: "add",
-	    index: 0,
-	    value: this.attr()
-	  });
-	  return stream;
+	can.List.prototype.toDataViewStream = function(mapper) {
+	  return can.makeDataViewStreamFromStream(this.bind("add").merge(this.bind("remove")).merge(this.bind("set")), mapper);
 	};
-	can.List.prototype.toViewList = function(mapper) {
-	  return this.toViewStream(mapper).toList();
+	can.List.prototype.toDataViewList = function(mapper) {
+	  return this.toDataViewStream(mapper).toList();
 	};
 	function findMappedIndex(mapping, index) {
 	  var mappedIndex = 0;

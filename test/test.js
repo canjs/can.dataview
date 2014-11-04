@@ -1,5 +1,5 @@
 describe("can.dataview", function() {
-  describe("can.makeViewStreamFromStream", function() {
+  describe("can.makeDataViewStreamFromStream", function() {
     it("accepts a stream and a function and returns a stream");
     it("reacts to 'add' events");
     it("reacts to 'set' events");
@@ -7,15 +7,16 @@ describe("can.dataview", function() {
     it("returns splice events");
     it("updates elements if items referenced in mapFn trigger changes");
   });
-  describe("can.List#toViewStream", function() {
+  describe("can.List#toDataViewStream", function() {
   });
-  describe("can.List#toViewList", function() {
+  describe("can.List#toDataViewList", function() {
     it("returns a can.List");
   });
   describe("lazytest", function() {
     it("works", function() {
       var sourceList = new can.List();
-      var targetList = sourceList.toViewList(function(todo, map) {
+
+      var targetList = sourceList.toDataViewList(function(todo, map) {
         if (!todo.attr("done")) {
           todo.attr("steps").forEach(map);
         }
@@ -26,7 +27,8 @@ describe("can.dataview", function() {
         description: "Do the Bitovi Dance",
         steps: ["hop around", "do a little twirl"]
       });
-      assert.deepEqual(targetList.attr(), ["hop around", "do a little twirl"]);
+
+      assert.deepEqual(targetList.attr(), ["hop around", "do a little twirl"], "synced");
 
       sourceList.push({
         done: true,
@@ -34,7 +36,7 @@ describe("can.dataview", function() {
         steps: ["clear throat", "push up glasses",
                 "raise index finger"]
       });
-      assert.deepEqual(targetList.attr(), ["hop around", "do a little twirl"]);
+      assert.deepEqual(targetList.attr(), ["hop around", "do a little twirl"], "filtering");
 
       sourceList.push({
         done: false,
@@ -69,28 +71,37 @@ describe("can.dataview", function() {
       sourceList.shift();
       assert.deepEqual(targetList.attr(), []);
       
-      // console.log("Benchmarking...");
-      // console.time("building");
-      // for (var i = 0; i < 500; i++) {
-      //   sourceList.push({
-      //     done: false,
-      //     description: "Do the Bitovi Dance",
-      //     steps: ["hop around", "do a little twirl"]
-      //   });
-      // }
-      // console.timeEnd("building");
-      // console.log("target list length: ", targetList.length);
-      // console.time("done");
-      // sourceList.forEach(function(todo) { todo.attr("done", true); });
-      // console.timeEnd("done");
-      // console.time("todo");
-      // sourceList.forEach(function(todo) { todo.attr("done", false); });
-      // console.timeEnd("todo");
-      // console.time("removing");
-      // for (var i = 0; i < sourceList.length; i++) {
-      //   sourceList.pop();
-      // }
-      // console.timeEnd("removing");
     });
   });
 });
+
+function bench() {
+  window.mapperCalls = 0;
+  window.sourceList = new can.List(),
+  window.targetList = window.sourceList.toDataViewList(function(todo, map) {
+    if (!todo.attr("done")) {
+      todo.attr("steps").forEach(map);
+    }
+  });
+  console.log("Benchmarking...");
+  console.time("building");
+  for (var i = 0; i < 200; i++) {
+    sourceList.push({
+      done: false,
+      description: "Do the Bitovi Dance",
+      steps: ["hop around", "do a little twirl"]
+    });
+  }
+  console.timeEnd("building");
+  console.time("done");
+  sourceList.forEach(function(todo) { todo.attr("done", true); });
+  console.timeEnd("done");
+  console.time("todo");
+  sourceList.forEach(function(todo) { todo.attr("done", false); });
+  console.timeEnd("todo");
+  console.time("removing");
+  for (var i = 0; i < sourceList.length; i++) {
+    sourceList.pop();
+  }
+  console.timeEnd("removing");
+}
