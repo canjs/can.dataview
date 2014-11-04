@@ -1,9 +1,15 @@
 * archive [0/0]
 * backlog [0/1]
 ** TODO Test using Travis-CI                                             :qa:
-* active [1/8]
+* active [1/12]
 ** DONE Improve filtered list API                                       :api:
    CLOSED: [2014-09-16 Tue 17:32]
+** TODO create issue to allow traceur options in steal                :build:
+** TODO Stop including the traceur runtime                            :build:
+** TODO Get steal-tools grunt plugin to work                          :build:
+   probably need to wait for justin to check it out and fix it
+** TODO Benchmark to get call counts for can.__reading                  :bug:
+   Figure out why __reading is so slow.
 ** TODO Allow users to specify what List class to use for toViewList    :api:
    Probably add a static property to can.List
 ** TODO Release filtered lists as a plugin                              :api:
