@@ -1,4 +1,6 @@
-# can.dataview
+# NOT MAINTAINED! This is a depricated Repository
+
+## can.dataview
 
 `can.dataview` is a [CanJS](https://github.com/bitovi/canjs) plugin that
 provides a simple API for creating and managing live-bound "views" based on
